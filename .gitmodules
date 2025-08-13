@@ -1,3 +1,6 @@
 [submodule ".magic-context"]
 	path = .magic-context
 	url = git@github.com:igamenovoer/magic-context.git
+[submodule "context/refcode/slidev"]
+	path = context/refcode/slidev
+	url = https://github.com/slidevjs/slidev.git
