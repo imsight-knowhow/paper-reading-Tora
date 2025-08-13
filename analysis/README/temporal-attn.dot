@@ -1,0 +1,134 @@
+digraph G {
+  graph [
+    rankdir=LR
+    compound=true
+    fontsize=10
+    labelloc=t
+    label="Temporal Self-Attention (ST-DiT) — Layered Frames and Colored Token Sequences"
+    pad="0.2"
+    nodesep="0.5"
+    ranksep="0.6"
+  ]
+
+  node [shape=box style=rounded fontsize=10]
+  edge [fontsize=9 arrowsize=0.7]
+
+  // Input and patchify
+  subgraph cluster_input {
+    label="Tokenization"
+    style=dashed
+    color="#7f8c8d"
+    video [label="Video (F x H x W)", shape=folder]
+    vae [label="Video VAE (optional)\ncompress to latents"]
+    latents [label="Latents (F x H' x W')"]
+    patchify [label="2D Patchify per frame\n+ Positional Encoding"]
+    video -> vae -> latents -> patchify
+  }
+
+  // Layered frames as colored grids (HTML-like labels with ports)
+  subgraph cluster_frames {
+    label="Layered frames (time depth)"
+    style=rounded
+    color="#34495e"
+    fontcolor="#34495e"
+
+    f1 [
+      label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" COLOR="#bdc3c7">
+          <TR>
+            <TD PORT="a1" BGCOLOR="#e74c3c"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#3498db"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD PORT="b1" BGCOLOR="#27ae60"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+        </TABLE>
+      >
+      shape=plain
+    ]
+
+    f2 [
+      label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" COLOR="#bdc3c7">
+          <TR>
+            <TD PORT="a2" BGCOLOR="#e74c3c"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#3498db"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD PORT="b2" BGCOLOR="#27ae60"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+        </TABLE>
+      >
+      shape=plain
+    ]
+
+    f3 [
+      label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" COLOR="#bdc3c7">
+          <TR>
+            <TD PORT="a3" BGCOLOR="#e74c3c"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#3498db"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD PORT="b3" BGCOLOR="#27ae60"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+          <TR>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+            <TD BGCOLOR="#ecf0f1"></TD>
+          </TR>
+        </TABLE>
+      >
+      shape=plain
+    ]
+
+    // arrange as a diagonal stack (top -> bottom = time)
+    f1 -> f2 -> f3 [style=invis]
+  }
+
+  // Temporal attention block
+  subgraph cluster_attn {
+    label="Temporal Self-Attention"
+    style=rounded
+    color="#2c3e50"
+    temp_attn [label="Temporal Self-Attention\n(1D along time per spatial location)\nmask: causal or bidirectional", fillcolor="#eef7ff", style="rounded,filled"]
+    out_tokens [label="Updated tokens per location\n(ready for next block)"]
+    temp_attn -> out_tokens
+  }
+
+  // Flow: patchify to frames
+  patchify -> f1 [lhead=cluster_frames]
+
+  // Three colored token sequences across time
+  a_seq [label="Token sequence A\n(same spatial index across t)", color="#e74c3c", fontcolor="#e74c3c" style="rounded"]
+  b_seq [label="Token sequence B\n(same spatial index across t)", color="#27ae60", fontcolor="#27ae60" style="rounded"]
+
+  f1:a1 -> f2:a2 -> f3:a3 -> a_seq [color="#e74c3c" penwidth=1.6]
+  f1:b1 -> f2:b2 -> f3:b3 -> b_seq [color="#27ae60" penwidth=1.6]
+
+  a_seq -> temp_attn [color="#e74c3c"]
+  b_seq -> temp_attn [color="#27ae60"]
+
+  // Legend
+  legend [shape=note fontsize=9 label="Colors denote distinct tokens (spatial positions).\nLayered grids represent frames over time."]
+  legend -> temp_attn [style=invis]
+}

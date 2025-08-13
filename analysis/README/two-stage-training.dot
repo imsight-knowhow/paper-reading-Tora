@@ -1,0 +1,93 @@
+digraph ToraTwoStageTraining {
+  rankdir=TB;
+  fontsize=12;
+  labelloc="t";
+  label="Tora Two-Stage Training Pipeline";
+  nodesep=0.4;
+  ranksep=0.6;
+  newrank=true;
+  concentrate=true;
+  compound=true;
+
+  node [shape=box, style=rounded, fontsize=11];
+
+  subgraph cluster_data {
+    label="Data Processing";
+    style=dashed;
+    color=gray60;
+    Raw[ label="Raw Videos" ];
+    Scene[ label="Scene Detection\n(PySceneDetect)" ];
+    Filter[ label="Quality Filters\n(aesthetic, optical flow)" ];
+    CamFilt[ label="Camera-motion Filtering\n(Motion segmentation + detector)" ];
+    Captions[ label="Captions (PLLaVA)" ];
+    { rank=same; Raw; Scene; Filter; CamFilt; Captions; }
+  Raw:e -> Scene:w   [constraint=false];
+  Scene:e -> Filter:w [constraint=false];
+  Filter:e -> CamFilt:w [constraint=false];
+  CamFilt:e -> Captions:w [constraint=false];
+  }
+
+  // Keep Data Processing at the top
+  { rank=min; Raw; Scene; Filter; CamFilt; Captions; }
+
+  subgraph cluster_stage1 {
+    label="Stage 1: Dense Flow Supervision";
+    style=filled;
+    color="#e8f0fe";
+    OF[ label="Optical Flow Estimation\n(GMA / RAFT-like)" ];
+    Flow2Map[ label="Flow → RGB Visualization\n+ Gaussian Smoothing" ];
+  VAE3D_1[ label="3D Motion VAE\n(pretrained on flow datasets)" ];
+    MotionLatent1[ label="Motion Latents (aligned with video latents)" ];
+    Train1[ label="Train: Temporal DiT Blocks + TE + MGF\n(loss on noise prediction)" ];
+
+  Captions -> OF [ltail=cluster_data];
+  OF -> Flow2Map -> VAE3D_1 -> MotionLatent1 -> Train1;
+  }
+
+  subgraph cluster_stage2 {
+    label="Stage 2: Sparse Trajectory Supervision";
+    style=filled;
+    color="#e8f5e9";
+    TrajSel[ label="Select 1..N Object Trajectories\n(by motion seg. & flow scores)" ];
+    Sparse2Map[ label="Sparse Traj → RGB Visualization\n+ Gaussian Smoothing" ];
+  VAE3D_2[ label="3D Motion VAE (frozen)" ];
+  MotionLatent2[ label="Motion Latents (via frozen 3D VAE)" ];
+    Train2[ label="Fine-tune: Temporal DiT Blocks + TE + MGF\n(adapter-style)" ];
+
+  Captions -> TrajSel [ltail=cluster_data];
+  TrajSel -> Sparse2Map -> VAE3D_2 -> MotionLatent2 -> Train2;
+  }
+
+  // Align Stage 1 and Stage 2 side-by-side (same row anchor)
+  { rank=same; OF; TrajSel; }
+  { rank=same; Flow2Map; Sparse2Map; }
+  { rank=same; VAE3D_1; VAE3D_2; }
+  { rank=same; MotionLatent1; MotionLatent2; }
+  { rank=same; Train1; Train2; }
+
+  subgraph cluster_infer {
+    label="Inference";
+    style=dashed;
+    color=gray60;
+    Inputs[ label="Inputs: Text ± Image Frames ± Trajectories" ];
+    TE[ label="Trajectory Extractor (TE)\n(visualize + 3D VAE + conv pyramid)" ];
+    MGF[ label="Motion-guidance Fuser (MGF)\n(adaptive norm in Temporal DiT)" ];
+    DiT[ label="ST-DiT Denoising\n(30 steps, guidance scale ~7)" ];
+    Output[ label="Video (up to 204 frames, 720p)" ];
+  { rank=same; Inputs; TE; MGF; DiT; Output; }
+  Inputs:e -> TE:w   [constraint=false];
+  TE:e     -> MGF:w  [constraint=false];
+  MGF:e    -> DiT:w  [constraint=false];
+  DiT:e    -> Output:w [constraint=false];
+  }
+
+  // Keep Inference at the bottom
+  { rank=max; Inputs; TE; MGF; DiT; Output; }
+
+  // Soft linkage to indicate training informs inference
+  Train2 -> TE [style=dotted, arrowhead=none, constraint=false];
+  // Symmetry to help center B1|B2 under A and above C
+  Train1 -> Inputs [style=invis];
+  // Invisible ordering edge to pull Inference below Stage 2
+  Train2 -> Inputs [style=invis];
+}

@@ -1,0 +1,121 @@
+digraph G {
+  graph [
+    rankdir=LR
+    compound=true
+    fontsize=14
+    labelloc=t
+    label="Trajectory Error (TrajError) — Computation Overview"
+    pad="0.2"
+    nodesep="0.6"
+    ranksep="0.7"
+  ]
+
+  node [shape=box style=rounded fontsize=14]
+  edge [fontsize=12 arrowsize=0.8]
+
+  // Inputs
+  subgraph cluster_inputs {
+    label="Inputs"
+    style=dashed
+    color="#7f8c8d"
+    gt [label="Target Trajectories\n(user or dense-flow derived)"]
+    genvid [label="Generated Video", shape=folder]
+  }
+
+  // Extract predicted trajectories from video
+  subgraph cluster_extract {
+  label="Extraction"
+    style=rounded
+    color="#34495e"
+  tracker [label="Object position estimator\n(e.g., segmentation → center-of-mask)"]
+    pred [label="Predicted Trajectories\n(from generated video)"]
+    genvid -> tracker -> pred
+  }
+
+  // Alignment/matching
+  subgraph cluster_match {
+    label="Matching"
+    style=rounded
+    color="#34495e"
+  match [label="Pair trajectories by ID (or Hungarian matching if needed)"]
+  }
+
+  // Tiny sequence illustration with per-frame distances
+  subgraph cluster_illustration {
+    label="Per-frame center-of-mask distance over time"
+    style=rounded
+    color="#2c3e50"
+
+    // time steps
+  T1 [label="t=1", shape=plaintext]
+  T2 [label="t=2", shape=plaintext]
+  T3 [label="t=3", shape=plaintext]
+
+    // ground-truth masks with center dots (blue) and predicted masks (orange)
+    gt1m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>GT mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#3498db" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+    gt2m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>GT mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#3498db" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+    gt3m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>GT mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#3498db" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+
+    pr1m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>Pred mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#e67e22" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+    pr2m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>Pred mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#e67e22" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+    pr3m [style="rounded", label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLPADDING="6">
+        <TR><TD><B>Pred mask</B></TD></TR>
+        <TR><TD ALIGN="CENTER"><FONT COLOR="#e67e22" POINT-SIZE="18">&#9679;</FONT> center</TD></TR>
+      </TABLE>
+    >]
+
+    // invisible ordering helpers per time step
+    {rank=same; T1 -> gt1m [style=invis]; gt1m -> pr1m [style=invis]}
+    {rank=same; T2 -> gt2m [style=invis]; gt2m -> pr2m [style=invis]}
+    {rank=same; T3 -> gt3m [style=invis]; gt3m -> pr3m [style=invis]}
+
+    // connect GT across time (path)
+    gt1m -> gt2m -> gt3m [color="#3498db" arrowsize=0.5]
+    // connect Pred across time (path)
+    pr1m -> pr2m -> pr3m [color="#e67e22" arrowsize=0.5]
+
+    // per-frame error (L1) vectors (d1,d2,d3)
+    gt1m -> pr1m [label="d1 (L1)", color="#c0392b", style=dashed]
+    gt2m -> pr2m [label="d2 (L1)", color="#c0392b", style=dashed]
+    gt3m -> pr3m [label="d3 (L1)", color="#c0392b", style=dashed]
+  }
+
+  // Aggregation formula
+  agg [shape=note fontsize=13 label="Per object: TrajError = (1/T) ∑_t ||c_pred,t − c_gt,t||_1\nwhere c = center of object mask (per frame)\nDataset score: average over objects and clips"]
+
+  // Wiring between clusters
+  gt -> match
+  pred -> match
+  match -> T1 [lhead=cluster_illustration]
+  match -> agg
+
+  // Legend
+  legend [shape=note fontsize=13 label="Blue = GT path, Orange = Pred path.\nPoints = centers of object masks (paper).\nRed dashed = per-frame L1 distance between centers."]
+  legend -> agg [style=invis]
+}

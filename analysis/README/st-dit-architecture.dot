@@ -1,0 +1,92 @@
+digraph G {
+  graph [
+    rankdir=LR
+    compound=true
+    fontsize=10
+    labelloc=t
+    label="Spatial-Temporal DiT (ST-DiT) Architecture — OpenSora-style"
+    pad="0.2"
+    nodesep="0.35"
+    ranksep="0.45"
+  ]
+
+  node [shape=box style=rounded fontsize=10]
+  edge [fontsize=9 arrowsize=0.7]
+
+  // Text side lane
+  subgraph cluster_text {
+    label="Text Conditioning"
+    style=dashed
+    color="#7f8c8d"
+    fontcolor="#7f8c8d"
+    text_enc [label="Text Encoder\n(e.g., T5)"]
+    txt_tokens [label="Prompt tokens\n+ position enc.", shape=box, style="rounded,filled", fillcolor="#f6f8fa"]
+    text_enc -> txt_tokens [label="embeddings"]
+  }
+
+  // Data path: VAE encode -> patchify -> ST-DiT -> VAE decode
+  subgraph cluster_data_in {
+    label="Latentization"
+    style=dashed
+    color="#7f8c8d"
+    video_in [label="Input Video\n(FxHxW)", shape=folder]
+    vae_enc [label="Video VAE Encoder\n(3D, compress)"]
+    patchify [label="Patchify +\nPositional Embedding"]
+    video_in -> vae_enc -> patchify
+  }
+
+  // ST-DiT core: alternate Spatial and Temporal blocks with Cross-Attn
+  subgraph cluster_stdit {
+    label="ST-DiT Core (2+1D alternation)"
+    style=rounded
+    color="#34495e"
+    fontcolor="#34495e"
+    node [shape=box style="rounded,filled" fillcolor="#ffffff"]
+
+    // show 6 blocks: S-T-S-T-S-T
+    S1 [label="S-DiT-B\nSpatial Self-Attn (2D)"]
+    T1 [label="T-DiT-B\nTemporal Self-Attn (1D)"]
+    S2 [label="S-DiT-B\nSpatial Self-Attn (2D)"]
+    T2 [label="T-DiT-B\nTemporal Self-Attn (1D)"]
+    S3 [label="S-DiT-B\nSpatial Self-Attn (2D)"]
+    T3 [label="T-DiT-B\nTemporal Self-Attn (1D)"]
+
+    // cross-attn adapters inside blocks
+  CA1 [label="Cross-Attn\n(text)" shape=box style="rounded,filled" fillcolor="#eef7ff"]
+  CA2 [label="Cross-Attn\n(text)" shape=box style="rounded,filled" fillcolor="#eef7ff"]
+  CA3 [label="Cross-Attn\n(text)" shape=box style="rounded,filled" fillcolor="#eef7ff"]
+
+    // arrange ranks
+    {rank=same; S1 -> T1 -> S2 -> T2 -> S3 -> T3 [style=invis]}
+
+    // wire spatial/temporal blocks sequentially
+    S1 -> T1 -> S2 -> T2 -> S3 -> T3 [color="#2c3e50"]
+
+    // position cross-attn after temporal blocks (typical in ST-DiT)
+    T1 -> CA1 -> S2 [color="#95a5a6" style=dashed]
+    T2 -> CA2 -> S3 [color="#95a5a6" style=dashed]
+    T3 -> CA3 [color="#95a5a6" style=dashed]
+  }
+
+  subgraph cluster_data_out {
+    label="Decoding"
+    style=dashed
+    color="#7f8c8d"
+    vae_dec [label="Video VAE Decoder\n(3D, reconstruct)"]
+    video_out [label="Generated Video", shape=folder]
+    vae_dec -> video_out
+  }
+
+  // main flow between clusters
+  patchify -> S1 [lhead=cluster_stdit]
+  T3 -> vae_dec [ltail=cluster_stdit]
+
+  // connect text tokens to every Cross-Attn (single summarized edge using cluster)
+  txt_tokens -> CA1 [style=dashed color="#2980b9" label="cross-attn keys/values"]
+  txt_tokens -> CA2 [style=dashed color="#2980b9"]
+  txt_tokens -> CA3 [style=dashed color="#2980b9"]
+
+  // optional note about variants
+  note [shape=note fontsize=9 label="Variants:\n• v1.2+ may use Full 3D Attn blocks\n• v1.3 adds Skiparse sparse 3D attn\n(This diagram shows classic 2+1D ST-DiT)"]
+  note -> cluster_stdit [style=invis]
+}

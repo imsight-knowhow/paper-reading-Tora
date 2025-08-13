@@ -1,0 +1,60 @@
+digraph G {
+  graph [
+    rankdir=LR
+    compound=true
+    fontsize=10
+    labelloc=t
+    label="Spatial Self-Attention (ST-DiT) — From Patchify to Attention"
+    pad="0.2"
+    nodesep="0.4"
+    ranksep="0.5"
+  ]
+
+  node [shape=box style=rounded fontsize=10]
+  edge [fontsize=9 arrowsize=0.7]
+
+  // Input and patchify
+  subgraph cluster_input {
+    label="Tokenization"
+    style=dashed
+    color="#7f8c8d"
+    video [label="Video frames (F x H x W)", shape=folder]
+    vae [label="Video VAE (optional)\ncompress to latents"]
+    latents [label="Latent frames (F x H' x W')"]
+    patchify [label="2D Patchify per frame\n+ 2D Positional Encoding"]
+    video -> vae -> latents -> patchify
+  }
+
+  // Per-frame spatial token sets
+  subgraph cluster_frames {
+    label="Per-frame spatial tokens (flattened H'·W')"
+    style=rounded
+    color="#34495e"
+    f1 [label="Frame t=1 tokens:\n{x_1, x_2, ..., x_{H'W'}}", fillcolor="#ffffff", style="rounded,filled"]
+    f2 [label="Frame t=2 tokens:\n{x_1, x_2, ..., x_{H'W'}}", fillcolor="#ffffff", style="rounded,filled"]
+    f3 [label="Frame t=T tokens:\n{x_1, x_2, ..., x_{H'W'}}", fillcolor="#ffffff", style="rounded,filled"]
+  }
+
+  // Spatial attention block
+  subgraph cluster_attn {
+    label="Spatial Self-Attention"
+    style=rounded
+    color="#2c3e50"
+    spat_attn [label="Spatial Self-Attention\n(2D within each frame)\nmask: none (bidirectional)", fillcolor="#eef7ff", style="rounded,filled"]
+    out_tokens [label="Updated tokens per frame\n(ready for next block)"]
+    spat_attn -> out_tokens
+  }
+
+  // Flow
+  patchify -> f1 [lhead=cluster_frames]
+  patchify -> f2 [lhead=cluster_frames]
+  patchify -> f3 [lhead=cluster_frames]
+
+  f1 -> spat_attn [ltail=cluster_frames]
+  f2 -> spat_attn [ltail=cluster_frames]
+  f3 -> spat_attn [ltail=cluster_frames]
+
+  // Notes
+  note [shape=note fontsize=9 label="In 2+1D ST-DiT, spatial self-attention\noperates over tokens within each frame in parallel."]
+  note -> spat_attn [style=invis]
+}
