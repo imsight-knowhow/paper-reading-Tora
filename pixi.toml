@@ -1,0 +1,14 @@
+[workspace]
+authors = ["igamenovoer <igamenovoer@xx.com>"]
+channels = ["conda-forge"]
+name = "paper-reading-Tora"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.13.5,<3.14"
+
+[pypi-dependencies]
+pymupdf = ">=1.26.3, <2"

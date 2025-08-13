@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<memory>
+  <item id="mem_1755057777580_o5kft5pc1" time="2025/08/13 12:02">
+    <content>
+      Vue 3 + Slidev Technical Architecture Knowledge:
+    
+      ## Core Architecture
+      - Slidev is a full Vue 3 app rendered by Vite - complete access to Composition API, SFCs, and Vue ecosystem
+      - Layouts are Vue components in layouts/ directory, components in components/ are auto-registered
+      - Global context accessible via $frontmatter, $slidev, or @slidev/client composables
+    
+      ## Key Vue 3 Patterns for Slidev
+      1. Custom Layout Creation:
+      - Create .vue files in layouts/ directory
+      - Use slots (default and named) for content injection
+      - Access frontmatter via $frontmatter in templates
+      - Import composables from @slidev/client for navigation/state
+    
+      2. Reactive Composition API:
+      - Full support for ref, computed, onMounted, watch
+      - useNav() for navigation (currentPage, clicks, next)
+      - useSlideContext() for slide-specific context
+      - useDarkMode() for theme state
+    
+      3. Slot Sugar Syntax:
+      - Use ::slotname:: in Markdown for named slots
+      - Example: ::right:: for two-column layouts
+    
+      4. Component Auto-Registration:
+      - Components in components/ folder are globally available
+      - Can be used directly in Markdown without imports
+    
+      5. UnoCSS for Styling:
+      - Utility classes available (grid, flex, absolute positioning)
+      - grid-cols-[1.2fr_1fr] for custom grid layouts
+      - Full Tailwind-like utilities
+    
+      ## Best Practices
+      - Use absolute paths from public/ (e.g., /figure1.png)
+      - Prefer @slidev/client composables over internal imports
+      - Keep layouts content-driven and reusable
+      - App-level concerns go in setup/main.ts
+      - Name slots explicitly and document them
+    </content>
+    <tags>#其他</tags>
+  </item>
+  <item id="mem_1755058141232_c6uzoa0b5" time="2025/08/13 12:09">
+    <content>
+      Slidev Architecture and Advanced Frontend Techniques:
+    
+      ## Core Architecture Insights
+      - Slidev = Vue 3 + Vite + UnoCSS + TypeScript
+      - Layouts are Vue SFCs in layouts/ with .slidev-layout base class
+      - Components in components/ are globally auto-registered
+      - Full Composition API and Vue ecosystem available
+    
+      ## Key Implementation Patterns
+    
+      ### Layout Pattern (from source)
+      - Always use class=&quot;slidev-layout&quot; as base
+      - Accept props for class, layoutClass for flexibility
+      - Use slots (default + named) for content injection
+      - Access $frontmatter for slide-specific config
+      - handleBackground() helper for image backgrounds
+    
+      ### Responsive Scaling Pattern
+      - Track viewport with window resize listeners
+      - Calculate scaleFactor: min(viewportW/designW, viewportH/designH)
+      - Apply transform: scale() with transform-origin: center
+      - Design for fixed dimensions (1280x720 typical)
+    
+      ### Built-in Components Usage
+      - &lt;Transform :scale=&quot;0.8&quot;&gt; for element scaling
+      - &lt;AutoFitText :max=&quot;200&quot; :min=&quot;50&quot;&gt; for dynamic text sizing
+      - v-if=&quot;$clicks &gt;= n&quot; for click-based reveals
+      - &lt;VDrag&gt; for draggable elements
+    
+      ### Grid Layouts with UnoCSS
+      - grid-cols-[1fr_2fr] for custom column ratios
+      - Full Tailwind utilities available
+      - @apply in scoped styles for component styling
+    
+      ### Composables Architecture
+      - useNav(): navigation, clicks, currentPage
+      - useSlideContext(): $slidev, $frontmatter access
+      - useDarkMode(): theme state management
+      - Imported from @slidev/client
+    
+      ### Slot Sugar Syntax
+      - ::slotname:: in markdown for named slots
+      - Cleaner than Vue template syntax
+      - Processed by slot-sugar transformer
+    
+      ## Best Practices from Source
+      1. Props over hardcoding for flexibility
+      2. TypeScript for all props definitions
+      3. Scoped styles with :deep() for nested elements
+      4. Keep layouts content-driven and composable
+      5. Use absolute paths from public/ for assets
+    
+      ## Directory Structure
+      layouts/ - Custom Vue layouts
+      components/ - Auto-registered components
+      setup/ - App configuration (main.ts, etc)
+      styles/ - Global CSS
+      public/ - Static assets
+    </content>
+    <tags>#其他</tags>
+  </item>
+</memory>

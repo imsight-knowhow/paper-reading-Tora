@@ -1,0 +1,80 @@
+% CVPR 2025 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+%\usepackage{cvpr}              % To produce the CAMERA-READY version
+%\usepackage[review]{cvpr}      % To produce the REVIEW version
+\usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+\usepackage[accsupp]{axessibility}
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{11023} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2025}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Tora: Trajectory-oriented Diffusion Transformer for Video Generation}
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{
+    %Authors
+    % All authors must be in the same font size and format.
+    Zhenghao Zhang\textsuperscript{\rm 1}\footnotemark[1], ~~ Junchao Liao\textsuperscript{\rm 1}\footnotemark[1], ~~ Menghao Li\textsuperscript{\rm 1}, ~~ZuoZhuo Dai\textsuperscript{\rm 1},\\
+    Bingxue Qiu\textsuperscript{\rm 1}, ~~ Siyu Zhu\textsuperscript{\rm 2}, ~~ Long Qin\textsuperscript{\rm 1}, ~~Weizhi Wang\textsuperscript{\rm 1}\\
+    \textsuperscript{\rm 1} Alibaba Cloud Computing ~~~~~~ \textsuperscript{\rm 2} Fudan University \\
+}
+
+% \affiliations{
+%     %Afiliations
+%     \textsuperscript{\rm 1}Alibaba Group
+%     \textsuperscript{\rm 2}Fudan University \\
+%     %{\tt\small \{zhangzhenghao.zzh,liaojunchao.ljc,limenghao.lmh,ql362507,wangweizhi.wwz\}@alibaba-inc.com}
+%    \tt\small  
+%    projectpage: \myhref{https://ali-videoai.github.io/tora_video/}
+% % See more examples next
+% }
+
+\begin{document}
+\maketitle
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[1]{Equal contribution}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+\input{sec/0_abstract}    
+\input{sec/s1_Introduction}
+\input{sec/s2_Related_Work}
+\input{sec/s3_Methodology}
+\input{sec/s4_Experiments}
+\input{sec/s5_Conclusion}
+\cleardoublepage
+\vspace{6mm}
+\begin{center}
+   {\huge \textbf{Appendix}}
+\end{center}
+
+\input{sec/s6_Supplementary_Material}
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% WARNING: do not forget to delete the supplementary pages from your submission 
+% \input{sec/X_suppl}
+
+\end{document}

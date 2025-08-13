@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "source": "project",
+  "metadata": {
+    "version": "2.0.0",
+    "description": "project 级资源注册表",
+    "createdAt": "2025-08-13T04:19:30.471Z",
+    "updatedAt": "2025-08-13T04:19:30.488Z",
+    "resourceCount": 4
+  },
+  "resources": [
+    {
+      "id": "academic-frontend-dev",
+      "source": "project",
+      "protocol": "role",
+      "name": "Academic Frontend Dev 角色",
+      "description": "专业角色，提供特定领域的专业能力",
+      "reference": "@project://.promptx/resource/role/academic-frontend-dev/academic-frontend-dev.role.md",
+      "metadata": {
+        "createdAt": "2025-08-13T04:19:30.473Z",
+        "updatedAt": "2025-08-13T04:19:30.473Z",
+        "scannedAt": "2025-08-13T04:19:30.473Z",
+        "path": "role/academic-frontend-dev/academic-frontend-dev.role.md"
+      }
+    },
+    {
+      "id": "academic-frontend-workflow",
+      "source": "project",
+      "protocol": "execution",
+      "name": "Academic Frontend Workflow 执行模式",
+      "description": "执行模式，定义具体的行为模式",
+      "reference": "@project://.promptx/resource/role/academic-frontend-dev/execution/academic-frontend-workflow.execution.md",
+      "metadata": {
+        "createdAt": "2025-08-13T04:19:30.483Z",
+        "updatedAt": "2025-08-13T04:19:30.483Z",
+        "scannedAt": "2025-08-13T04:19:30.483Z",
+        "path": "role/academic-frontend-dev/execution/academic-frontend-workflow.execution.md"
+      }
+    },
+    {
+      "id": "academic-research-thinking",
+      "source": "project",
+      "protocol": "thought",
+      "name": "Academic Research Thinking 思维模式",
+      "description": "思维模式，指导AI的思考方式",
+      "reference": "@project://.promptx/resource/role/academic-frontend-dev/thought/academic-research-thinking.thought.md",
+      "metadata": {
+        "createdAt": "2025-08-13T04:19:30.485Z",
+        "updatedAt": "2025-08-13T04:19:30.485Z",
+        "scannedAt": "2025-08-13T04:19:30.485Z",
+        "path": "role/academic-frontend-dev/thought/academic-research-thinking.thought.md"
+      }
+    },
+    {
+      "id": "frontend-technical-thinking",
+      "source": "project",
+      "protocol": "thought",
+      "name": "Frontend Technical Thinking 思维模式",
+      "description": "思维模式，指导AI的思考方式",
+      "reference": "@project://.promptx/resource/role/academic-frontend-dev/thought/frontend-technical-thinking.thought.md",
+      "metadata": {
+        "createdAt": "2025-08-13T04:19:30.486Z",
+        "updatedAt": "2025-08-13T04:19:30.486Z",
+        "scannedAt": "2025-08-13T04:19:30.486Z",
+        "path": "role/academic-frontend-dev/thought/frontend-technical-thinking.thought.md"
+      }
+    }
+  ],
+  "stats": {
+    "totalResources": 4,
+    "byProtocol": {
+      "role": 1,
+      "execution": 1,
+      "thought": 2
+    },
+    "bySource": {
+      "project": 4
+    }
+  }
+}

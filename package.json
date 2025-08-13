@@ -1,0 +1,24 @@
+{
+  "name": "paper-reading-tora",
+  "version": "1.0.0",
+  "description": "Paper reading notes for the CVPR 2025 paper \"Tora: Trajectory-oriented Diffusion Transformer for Video Generation\".",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+  "slides:dev": "slidev slides/master.md --open",
+  "slides:build": "slidev build slides/master.md",
+  "slides:export": "slidev export slides/master.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imsight-knowhow/paper-reading-Tora.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/imsight-knowhow/paper-reading-Tora/issues"
+  },
+  "homepage": "https://github.com/imsight-knowhow/paper-reading-Tora#readme"
+}

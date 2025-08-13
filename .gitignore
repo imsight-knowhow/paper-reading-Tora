@@ -129,7 +129,9 @@ logs/
 *.stackdump
 
 # Temporary files and directories
-tmp/*
-!tmp/.gitkeep
-temp/
-*.tmp
+tmp/
+
+# Node.js dependencies
+node_modules/
+package-lock.json# pixi environments
+.pixi
